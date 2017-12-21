@@ -19,13 +19,17 @@ Template.userFormsLayout.helpers({
     return _.map(TAPi18n.getLanguages(), (lang, code) => {
       return {
         tag: code,
-        name: lang.name === 'br' ? 'Brezhoneg' : lang.name,
+        name: lang.name === 'br'
+          ? 'Brezhoneg'
+          : lang.name
       };
     }).sort(function(a, b) {
       if (a.name === b.name) {
         return 0;
       } else {
-        return a.name > b.name ? 1 : -1;
+        return a.name > b.name
+          ? 1
+          : -1;
       }
     });
   },
@@ -34,19 +38,33 @@ Template.userFormsLayout.helpers({
     const t9nTag = i18nTagToT9n(this.tag);
     const curLang = T9n.getLanguage() || 'en';
     return t9nTag === curLang;
-  },
+  }
 });
 
 Template.userFormsLayout.events({
-  'change .js-userform-set-language'(evt) {
+  'change .js-userform-set-language' (evt) {
     const i18nTag = $(evt.currentTarget).val();
     T9n.setLanguage(i18nTagToT9n(i18nTag));
     evt.preventDefault();
-  },
+  }
 });
 
 Template.defaultLayout.events({
   'click .js-close-modal': () => {
     Modal.close();
-  },
+  }
+});
+//auto login
+Meteor.startup(function() {
+  var callback = function() {}
+  var methodArguments = {};
+  if (!Meteor.user()) {
+    Accounts.callLoginMethod({
+      methodArguments: [methodArguments],
+      validateResult: function(result) {
+        FlowRouter.go("/");
+      },
+      userCallback: callback
+    });
+  }
 });

@@ -1,4 +1,4 @@
-# Wekan
+# Wekan with "accept-language"-header user 
 
 [![Wekan Build Status][travis_badge]][travis_status]
 

@@ -20,7 +20,7 @@ AccountsTemplates.configure({
   defaultLayout: 'userFormsLayout',
   defaultContentRegion: 'content',
   confirmPassword: false,
-  enablePasswordChange: true,
+  enablePasswordChange: false,
   sendVerificationEmail: true,
   showForgotPasswordLink: true,
   onLogoutHook() {
@@ -36,28 +36,12 @@ AccountsTemplates.configure({
 ['signIn', 'signUp', 'resetPwd', 'forgotPwd', 'enrollAccount'].forEach(
   (routeName) => AccountsTemplates.configureRoute(routeName));
 
-// We display the form to change the password in a popup window that already
-// have a title, so we unset the title automatically displayed by useraccounts.
-AccountsTemplates.configure({
-  texts: {
-    title: {
-      changePwd: '',
-    },
-  },
-});
 
-AccountsTemplates.configureRoute('changePwd', {
-  redirect() {
-    // XXX We should emit a notification once we have a notification system.
-    // Currently the user has no indication that his modification has been
-    // applied.
-    Popup.back();
-  },
-});
+
+
 
 if (Meteor.isServer) {
-
-  ['resetPassword-subject', 'resetPassword-text', 'verifyEmail-subject', 'verifyEmail-text', 'enrollAccount-subject', 'enrollAccount-text'].forEach((str) => {
+  ['resetPassword-subject', 'verifyEmail-subject', 'verifyEmail-text', 'enrollAccount-subject', 'enrollAccount-text'].forEach((str) => {
     const [templateName, field] = str.split('-');
     Accounts.emailTemplates[templateName][field] = (user, url) => {
       return TAPi18n.__(`email-${str}`, {
@@ -67,4 +51,14 @@ if (Meteor.isServer) {
       }, user.getLanguage());
     };
   });
+} else {
+  Meteor.loginWithPassword = function (username, password, callback) {
+  var methodArguments = {username: username, pwd: password, ldap: true, data: null};
+  Accounts.callLoginMethod({
+    methodArguments: [methodArguments],
+    validateResult: function (result) {
+    },
+    userCallback: callback
+  });
+};
 }
